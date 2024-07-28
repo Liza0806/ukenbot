@@ -5,9 +5,11 @@ const { handleMongooseError } = require("../handleMongooseError");
 
 const phoneRegexp = /^(\+\d{1,2}\s?)?(\(\d{1,4}\))?[0-9.\-\s]{6,}$/;
 
+
   const visitSchema = new mongoose.Schema({
     date: { type: Date, required: true },
-    groupId: { type: String, required: true }
+    groupId: { type: String, required: true },
+    eventId: { type: String, required: true }
   });
   const userSchema = new Schema(
     {
