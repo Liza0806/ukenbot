@@ -162,11 +162,27 @@ bot.on('message:text', async (ctx) => {
             const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
             ctx.session.verificationCode = verificationCode;
             ctx.session.verificationToken = uuidv4();
-    
+
             await ctx.reply(`Your verification token is: ${ctx.session.verificationToken}. Please send this token to verify your registration.`);
             ctx.session.registrationStep = 5;
         } else if (ctx.session.registrationStep === 5) {
             if (ctx.message.text === ctx.session.verificationToken) {
+                // Проверка на существование пользователя с таким же telegramId
+                const existingUserByTelegramId = await User.findOne({ telegramId: ctx.from.id.toString() });
+                if (existingUserByTelegramId) {
+                    await ctx.reply('A user with this Telegram ID already exists.');
+                    ctx.session = {}; // Очистить сессию
+                    return;
+                }
+
+                // Проверка на существование пользователя с таким же email
+                const existingUserByEmail = await User.findOne({ email: ctx.session.registrationEmail });
+                if (existingUserByEmail) {
+                    await ctx.reply('A user with this email address already exists.');
+                    ctx.session = {}; // Очистить сессию
+                    return;
+                }
+
                 const user = new User({
                     telegramId: ctx.from.id.toString(),
                     name: ctx.session.registrationName,
@@ -191,6 +207,7 @@ bot.on('message:text', async (ctx) => {
         await ctx.reply('Sorry, there was an error processing your request.');
     }
 });
+
 
 // Обработка нажатий на кнопки выбора групп
 bot.on('callback_query:data', async (ctx) => {
