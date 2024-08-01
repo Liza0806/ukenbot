@@ -26,6 +26,10 @@ const phoneRegexp = /^(\+\d{1,2}\s?)?(\(\d{1,4}\))?[0-9.\-\s]{6,}$/;
       },
       isAdmin: { type: Boolean, default: false },
       groups: { type: Array, required: true }, ///
+      balance:{
+        type: Number,
+        default: 0
+      }, 
       visits: [visitSchema],
       avatarURL: {
         type: String,

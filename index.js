@@ -5,6 +5,7 @@ const moment = require('moment');
 const { User } = require('./models/userModel');
 const { Group } = require('./models/groupModel');
 const { v4: uuidv4 } = require('uuid');
+const { getTasks } = require('node-cron');
 
 // Подключение к базе данных
 mongoose.connect(process.env.DB_HOST, {
@@ -65,8 +66,12 @@ bot.hears('yes', async (ctx) => {
       if (!user) {
         return ctx.reply('User not found');
       }
-  
+      console.log(user, user.groups, ctx.session.selectedGroup)
+  if(!user.groups.includes(ctx.session.selectedGroup)){
+    user.groups.push(ctx.session.selectedGroup)
+  }
       const group = await Group.findById(ctx.session.selectedGroup).exec();
+      console.log(group)
       if (!group) {
         return ctx.reply('Group not found');
       }
