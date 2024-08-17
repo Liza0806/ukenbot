@@ -14,39 +14,18 @@ const phoneRegexp = /^(\+\d{1,2}\s?)?(\(\d{1,4}\))?[0-9.\-\s]{6,}$/;
   const userSchema = new Schema(
     {
       name: { type: String, required: true },
-      email: {
-        type: String,
-        required: [true, "Email is required"],
-        unique: true,
-      },
       password: { type: String, required: [true, "Set password for user"] },
       phone: {
         type: String,
         match: phoneRegexp,
       },
       isAdmin: { type: Boolean, default: false },
-      groups: { type: Array, required: true }, ///
+      groups: { type: Array, default: [] }, ///
       balance:{
         type: Number,
         default: 0
       }, 
       visits: [visitSchema],
-      avatarURL: {
-        type: String,
-        required: false,
-      },
-      verify: {
-        type: Boolean,
-        default: false,
-      },
-      verificationCode: {
-        type: String,
-        required: [true, "Verify token is required"],
-      },
-      token: {
-        type: String,
-        default: null
-      },
       telegramId: {
        type: Number,
        required: true
