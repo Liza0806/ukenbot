@@ -38,10 +38,6 @@ const paymentSchema = new Schema ({
 })
 
 const groupSchema = new Schema({
-  _id: {
-    type: String,
-    required: true,
-  },
   title: {
     type: String,
     required: [true, "Set name for the group"],
@@ -49,31 +45,29 @@ const groupSchema = new Schema({
   },
   coachId: {
     type: String,
-    required: true,
     default: "Kostya"
   },
 payment: [paymentSchema],
 schedule: [scheduleSchema],
 });
 
+
 const scheduleSchemaJoi = Joi.object({
   day: Joi.string().required(),
   time: Joi.string().required(),
 });
 const paymentSchemaJoi = Joi.object({
-  dailyPayment: Joi.string().allow('').default('0'),
-  monthlyPayment: Joi.string().allow('').default('0'),
+  dailyPayment: Joi.number().allow('').default('0'),
+  monthlyPayment: Joi.number().allow('').default('0'),
 });
 
 
 const addGroupSchema = Joi.object({
-  _id: Joi.string().required(),
   title: Joi.string().default('newGroupTitle'),
   coachId: Joi.string().default('Kostya'),
   payment: Joi.array().items(paymentSchemaJoi).default([]),
   schedule: Joi.array().items(scheduleSchemaJoi).default([]),
 });
-
 const updateGroupPriceSchema = Joi.object({
   payment: Joi.array().items(paymentSchemaJoi).default([]),
 });

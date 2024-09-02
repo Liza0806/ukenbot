@@ -5,26 +5,32 @@ const Joi = require('joi');
 
 const eventSchema = new Schema({
     _id: {
-        type: String, 
+        type: String,
         required: true
     },
     date: {
         type: Date,
         required: true
     },
-    group: {
+    groupTitle: {
         type: String,
         required: true
     },
+    groupId: {
+        type: String,
+        required: true
+    },
+
     isCancelled: {
         type: Boolean,
         default: false
     },
     participants: {
-        type: [{ id: String, name: String }],
+        type: [{ id: String, name: String }], // Массив объектов для хранения ID и имен участников
         required: true
     }
-}, { timestamps: true });
+}, { timestamps: true }); // timestamps добавлены как опция схемы
+
 
 const Event = model('event', eventSchema);
 
@@ -36,17 +42,12 @@ const participantsSchemaJoi = Joi.object({
 const addEventSchema = Joi.object({
     _id: Joi.string().required(),
     date: Joi.date().required(), 
-    group: Joi.string().required(),
+    groupTitle: Joi.string().required(),
+    groupId: Joi.string().required(),
     isCancelled: Joi.boolean().default(false), 
     participants: Joi.array().items(participantsSchemaJoi).default([]),
 });
-// const addUserSchema = Joi.object({
-//     _id: Joi.string().required(),
-//     date: Joi.date().required(), 
-//     group: Joi.string().required(),
-//     isCancelled: Joi.boolean().default(false), 
-//     participants: Joi.array().items(participantsSchemaJoi).default([]),
-// });
+
 const schemas = {
     addEventSchema
 };
