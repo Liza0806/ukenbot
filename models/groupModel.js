@@ -58,7 +58,7 @@ const groupSchema = new Schema({
     type: String,
     default: "Kostya"
   },
-payment: paymentSchema,
+payment: [paymentSchema],
 schedule: [scheduleSchema],
 participants: [participantsSchema],
 });
