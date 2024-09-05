@@ -1,4 +1,6 @@
 require("dotenv").config();
+const express = require("express");
+const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const { Bot, session } = require("grammy");
 
@@ -11,26 +13,23 @@ const { noHandler } = require("./handlers/noHandler");
 const { handleBotError } = require("./handlers/errorHandler");
 const { showMainMenu } = require("./commands/showMainMenu");
 
+const app = express();
+const port = process.env.PORT || 3000;
+
 // Подключение к базе данных
 mongoose.connect(process.env.DB_HOST);
 
+// Инициализация бота
 const bot = new Bot(process.env.BOT_API_KEY);
-
-// Инициализация сессий
 bot.use(session({ initial: () => ({}) }));
 
-// Команда для начала регистрации
+// Команды и обработчики
 bot.command("register", registerCommand);
-
-// Команда для выбора группы
 bot.hears("🔍 Выбрать группу", handleGroupSelection);
-
 bot.command("start", start);
 
-// Обработка нажатия на кнопку "Начать регистрацию"
 bot.on("callback_query:data", async (ctx) => {
   const data = ctx.callbackQuery.data;
-
   if (data === "register") {
     await registerCommand(ctx);
   } else if (data === "startwork") {
@@ -38,7 +37,6 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data.startsWith("{")) {
     try {
       const parsedData = JSON.parse(data);
-
       if (parsedData.id && parsedData.title) {
         await groupsCommand(ctx);
       } else {
@@ -58,14 +56,21 @@ bot.on("callback_query:data", async (ctx) => {
 });
 
 bot.callbackQuery("cancel_training", noHandler);
-
-// Обработка текстовых сообщений
 bot.on("message:text", handleTextMessages);
-
-// Обработка ошибок
 bot.catch(handleBotError);
 
+// Обработка POST-запросов от Telegram
+app.use(bodyParser.json());
+app.post('/webhook', (req, res) => {
+  bot.handleUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// Запуск сервера
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
 module.exports = (req, res) => {
-    bot.start();
-    res.status(200).send("Bot is running");
-  };
+  res.status(200).send("Bot is running");
+};
