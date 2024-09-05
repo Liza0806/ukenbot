@@ -17,8 +17,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Подключение к базе данных
-mongoose.connect(process.env.DB_HOST);
-
+mongoose.connect(process.env.DB_HOST).then(() => console.log('Database connected'))
+.catch(err => console.error('Database connection error:', err));
 // Инициализация бота
 const bot = new Bot(process.env.BOT_API_KEY);
 bot.use(session({ initial: () => ({}) }));
@@ -62,6 +62,7 @@ bot.catch(handleBotError);
 // Обработка POST-запросов от Telegram
 app.use(bodyParser.json());
 app.post('/webhook', (req, res) => {
+  console.log('Received update:', req.body);
   bot.handleUpdate(req.body);
   res.sendStatus(200);
 });
@@ -74,3 +75,4 @@ app.listen(port, () => {
 module.exports = (req, res) => {
   res.status(200).send("Bot is running");
 };
+
