@@ -33,32 +33,25 @@ bot.on("callback_query:data", async (ctx) => {
 
   if (data === "register") {
     await registerCommand(ctx);
-
   } else if (data === "startwork") {
     await showMainMenu(ctx);
-
   } else if (data.startsWith("{")) {
     try {
       const parsedData = JSON.parse(data);
 
       if (parsedData.id && parsedData.title) {
         await groupsCommand(ctx);
-
       } else {
         await ctx.reply("Invalid JSON format.");
       }
-
     } catch (error) {
       console.error("Error parsing JSON:", error);
       await ctx.reply("Error processing data.");
     }
-
   } else if (data === "accept_training") {
     await yesHandler(ctx);
-
   } else if (data === "cancel_training") {
     await noHandler(ctx);
-    
   } else {
     await ctx.reply("Unknown command or data format.");
   }
@@ -73,3 +66,4 @@ bot.on("message:text", handleTextMessages);
 bot.catch(handleBotError);
 
 bot.start();
+module.exports = bot;
