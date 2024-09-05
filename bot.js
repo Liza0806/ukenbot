@@ -65,5 +65,7 @@ bot.on("message:text", handleTextMessages);
 // Обработка ошибок
 bot.catch(handleBotError);
 
-bot.start();
-module.exports = bot;
+module.exports = (req, res) => {
+    bot.start();
+    res.status(200).send("Bot is running");
+  };
