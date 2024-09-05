@@ -46,6 +46,7 @@ const addEventSchema = Joi.object({
     groupId: Joi.string().required(),
     isCancelled: Joi.boolean().default(false), 
     participants: Joi.array().items(participantsSchemaJoi).default([]),
+
 });
 
 const schemas = {

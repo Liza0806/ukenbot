@@ -13,6 +13,12 @@ const validDays = [
   "saturday",
 ];
 
+const participantsSchemaJoi = Joi.object({
+  name: Joi.string().required(),
+  id: Joi.string().required(),
+});
+
+
 const scheduleSchema = new Schema({
   day: {
     type: String,
