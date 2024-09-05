@@ -5,6 +5,6 @@
     { "src": "bot.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/bot.js" }
+    { "src": "/(.*)", "dest": "bot.js" }
   ]
 }
