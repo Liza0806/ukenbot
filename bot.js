@@ -2,13 +2,14 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const { Bot, session } = require("grammy");
 
-const { registerCommand } = require("./commands/register");
+const { registerCommand, start } = require("./commands/start");
 const { groupsCommand } = require("./commands/groups");
 const { handleGroupSelection } = require("./handlers/handleGroupSelection");
 const { handleTextMessages } = require("./handlers/textMessages");
 const { yesHandler } = require("./handlers/yesHandler");
 const { noHandler } = require("./handlers/noHandler");
 const { handleBotError } = require("./handlers/errorHandler");
+const { showMainMenu } = require("./commands/showMainMenu");
 
 // Подключение к базе данных
 mongoose.connect(process.env.DB_HOST);
@@ -22,36 +23,53 @@ bot.use(session({ initial: () => ({}) }));
 bot.command("register", registerCommand);
 
 // Команда для выбора группы
-bot.command("groups", handleGroupSelection);
+bot.hears("🔍 Выбрать группу", handleGroupSelection);
 
-// Обработка ответов на участие в событии
-bot.hears("yes", yesHandler);
+bot.command("start", start);
 
-bot.hears("no", noHandler);
+// Обработка нажатия на кнопку "Начать регистрацию"
+bot.on("callback_query:data", async (ctx) => {
+  const data = ctx.callbackQuery.data;
+
+  if (data === "register") {
+    await registerCommand(ctx);
+
+  } else if (data === "startwork") {
+    await showMainMenu(ctx);
+
+  } else if (data.startsWith("{")) {
+    try {
+      const parsedData = JSON.parse(data);
+
+      if (parsedData.id && parsedData.title) {
+        await groupsCommand(ctx);
+
+      } else {
+        await ctx.reply("Invalid JSON format.");
+      }
+
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      await ctx.reply("Error processing data.");
+    }
+
+  } else if (data === "accept_training") {
+    await yesHandler(ctx);
+
+  } else if (data === "cancel_training") {
+    await noHandler(ctx);
+    
+  } else {
+    await ctx.reply("Unknown command or data format.");
+  }
+});
+
+bot.callbackQuery("cancel_training", noHandler);
 
 // Обработка текстовых сообщений
 bot.on("message:text", handleTextMessages);
 
-// Обработка нажатий на кнопки выбора групп
-bot.on("callback_query:data", groupsCommand);
-
 // Обработка ошибок
 bot.catch(handleBotError);
-
-// Установка команд бота
-bot.api.setMyCommands([
-  {
-    command: "groups",
-    description: "Choose your group",
-  },
-  {
-    command: "register",
-    description: "Start registration",
-  },
-  {
-    command: "payment",
-    description: "Check your monthly payment status",
-  },
-]);
 
 bot.start();

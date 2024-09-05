@@ -1,8 +1,6 @@
 const { User } = require("../models/userModel");
+const { InlineKeyboard } = require("grammy");
 const bcrypt = require("bcrypt");
-const {
-  deleteMessageAfterDelay,
-} = require("../helpers/deleteMessageAfterDelay");
 
 async function handleTextMessages(ctx) {
   let replyMessageIds = [];
@@ -10,18 +8,16 @@ async function handleTextMessages(ctx) {
   if (ctx.session.registrationStep === 1) {
     ctx.session.registrationName = ctx.message.text;
     ctx.session.registrationStep = 2;
-    await ctx.reply("Please enter your password:");
-    replyMessageIds.push(reply.message_id);
-    deleteMessageAfterDelay(ctx, replyMessageIds, 5000);
+
+    await ctx.reply("Введите ваш пароль 🛡️:");
   } else if (ctx.session.registrationStep === 2) {
     ctx.session.registrationPassword = ctx.message.text;
     ctx.session.registrationStep = 3;
-    await ctx.reply('Confirm your registration by typing "confirm"');
-    replyMessageIds.push(reply.message_id);
-    deleteMessageAfterDelay(ctx, replyMessageIds, 5000);
+
+    await ctx.reply('Подтвердите регистрацию, набрав "uken" 🔑');
   } else if (
     ctx.session.registrationStep === 3 &&
-    ctx.message.text.toLowerCase() === "confirm"
+    ctx.message.text.toLowerCase() === "uken"
   ) {
     const hashedPassword = await bcrypt.hash(
       ctx.session.registrationPassword,
@@ -35,9 +31,12 @@ async function handleTextMessages(ctx) {
       createdAt: new Date(),
     });
     await user.save();
-    await ctx.reply("Registration successful!");
-    deleteMessageAfterDelay(ctx, replyMessageIds, 5000);
-    ctx.session = {};
+
+    const startKeyboard = new InlineKeyboard().text("Погнали? 🚀", "startwork");
+
+    await ctx.reply("Регистрация успешна! Добро пожаловать в UKEN TEAM 🎉", {
+      reply_markup: startKeyboard,
+    });
   }
 }
 

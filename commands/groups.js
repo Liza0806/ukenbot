@@ -1,6 +1,6 @@
 const { Event } = require("../models/eventModel");
 const moment = require("moment");
-const { Keyboard } = require("grammy");
+const { InlineKeyboard } = require("grammy");
 
 async function groupsCommand(ctx) {
   try {
@@ -10,19 +10,21 @@ async function groupsCommand(ctx) {
     const groupTitle = callbackData.title;
     const events = await Event.find({ groupId: groupId }).exec();
     if (!events) {
-      return ctx.reply("Events not found");
+      return ctx.reply("⚠️ Events not found");
     }
 
     const today = moment();
-    const event = events.filter(
+    const upcomingEvents = events.filter(
       (event) => !event.isCancelled && moment(event.date).isAfter(today)
     );
 
-    if (events.length === 0) {
-      return ctx.reply("No upcoming events found");
+    if (upcomingEvents.length === 0) {
+      return ctx.reply("🚫 No upcoming events found");
     }
 
-    const nextEvent = event.sort((a, b) => moment(a.date) - moment(b.date))[0];
+    const nextEvent = upcomingEvents.sort(
+      (a, b) => moment(a.date) - moment(b.date)
+    )[0];
     const eventDate = moment(nextEvent.date).format("YYYY-MM-DD");
     const eventTime = moment(nextEvent.date).format("HH:mm");
 
@@ -31,14 +33,21 @@ async function groupsCommand(ctx) {
     ctx.session.nextEventTime = eventTime;
     ctx.session.nextEvent = nextEvent._id;
     ctx.session.groupTitle = groupTitle;
+
+    console.log(" ctx.session", ctx.session);
+
+    const inlineKeyboard = new InlineKeyboard()
+      .text("✅ Пойду", "accept_training")
+      .text("🚫 Не пойду", "cancel_training");
+
     await ctx.reply(
-      `The next event is on ${eventDate} at ${eventTime}. Will you go to this event?`,
+      `📅 Следующая тренировка будет ${eventDate} в ${eventTime}. Пойдешь?`,
       {
-        reply_markup: new Keyboard().text("yes").text("no").resized().oneTime(),
+        reply_markup: inlineKeyboard,
       }
     );
   } catch (error) {
-    await ctx.reply("Sorry, there was an error processing your request.");
+    await ctx.reply("❗️ Sorry, there was an error processing your request.");
   }
 }
 
