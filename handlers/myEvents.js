@@ -1,22 +1,22 @@
 const { InlineKeyboard } = require("grammy");
 const { Event } = require("../models/eventModel");
-const { deleteMessageAfterDelay } = require("../helpers/deleteMessageAfterDelay");
+const {
+  deleteMessageAfterDelay,
+} = require("../helpers/deleteMessageAfterDelay");
 
 async function myEvents(ctx) {
-  const userId = ctx.from.id.toString(); // Исправлено на userId
+  const userId = ctx.from.id.toString();
 
   let replyMessageIds = [];
 
   try {
-    // Получаем текущую дату
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // 1 число текущего месяца
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Последний день текущего месяца
 
-    // Ищем события в указанном промежутке времени
     const events = await Event.find({
-      'participants.id': userId,
-      date: { $gte: startOfMonth, $lte: endOfMonth } // Фильтрация по дате
+      "participants.id": userId,
+      date: { $gte: startOfMonth, $lte: endOfMonth }, // Фильтрация по дате
     });
 
     if (events.length === 0) {
@@ -30,19 +30,17 @@ async function myEvents(ctx) {
     const rows = events.map((event) => [
       {
         text: `${event.date.toDateString()} - ${event.groupTitle}`,
-        callback_data: `event_${event._id}` // Добавляем уникальный идентификатор события
+        callback_data: `event_${event._id}`,
       },
     ]);
     const groupKeyboard = new InlineKeyboard(rows);
 
-    const reply = await ctx.reply("Вот твои тренировки:", { reply_markup: groupKeyboard });
+    const reply = await ctx.reply("Вот твои тренировки:", {
+      reply_markup: groupKeyboard,
+    });
     replyMessageIds.push(reply.message_id);
-
-    // Можно добавить дополнительные сообщения, если нужно
-    // ...
-
   } catch (error) {
-    console.error("Ошибка при загрузке тренировок:", error); // Для отладки
+    console.error("Ошибка при загрузке тренировок:", error);
     const errorMessage = await ctx.reply(
       "🚨 Извините, произошла ошибка при загрузке тренировок."
     );
