@@ -1,6 +1,6 @@
 const { User } = require("../models/userModel");
 const { InlineKeyboard } = require("grammy");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 
 async function handleTextMessages(ctx) {
   let replyMessageIds = [];
