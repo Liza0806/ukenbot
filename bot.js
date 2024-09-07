@@ -14,6 +14,7 @@ const { handleBotError } = require("./handlers/errorHandler");
 const { showMainMenu } = require("./commands/showMainMenu");
 
 const app = express();
+app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
 // Подключение к базе данных
