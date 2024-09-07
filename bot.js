@@ -11,6 +11,7 @@ const { handleTextMessages } = require("./handlers/textMessages");
 const { yesHandler } = require("./handlers/yesHandler");
 const { noHandler } = require("./handlers/noHandler");
 const { handleBotError } = require("./handlers/errorHandler");
+const { myEvents } = require("./handlers/myEvents");
 const { showMainMenu } = require("./commands/showMainMenu");
 
 const app = express();
@@ -28,6 +29,7 @@ bot.use(session({ initial: () => ({}) }));
 // Команды и обработчики
 bot.command("register", registerCommand);
 bot.hears("🔍 Выбрать группу", handleGroupSelection);
+bot.hears("📝 Мои посещения", myEvents);
 bot.command("start", start);
 
 bot.on("callback_query:data", async (ctx) => {
