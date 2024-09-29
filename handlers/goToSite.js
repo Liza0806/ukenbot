@@ -1,3 +1,5 @@
+const { User } = require("../models/userModel");
+
 async function goToSite(ctx) {
   const userId = ctx.from.id.toString();
 
