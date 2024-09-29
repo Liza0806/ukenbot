@@ -3,7 +3,7 @@ const { User } = require("../models/userModel");
 async function goToSite(ctx) {
   const userId = ctx.from.id.toString();
 
-  const user = await User.findOne({ "participants.id": userId });
+  const user = await User.findOne({ "_id": userId });
 
   if (!user) {
     return ctx.reply("Пользователь не найден.");
