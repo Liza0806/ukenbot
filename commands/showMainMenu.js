@@ -6,7 +6,7 @@ async function showMainMenu(ctx) {
     .text("📝 Мои посещения")
     .row()
     .text("💰 Проверить оплату")
-    .text("🌍 На сайт");
+    .text("🌍 Перейти на сайт");
 
   await ctx.reply("Выберите действие:", {
     reply_markup: mainMenu.resized().oneTime(),
