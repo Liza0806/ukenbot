@@ -30,6 +30,7 @@ bot.use(session({ initial: () => ({}) }));
 bot.command("register", registerCommand);
 bot.hears("🔍 Выбрать группу", handleGroupSelection);
 bot.hears("📝 Мои посещения", myEvents);
+bot.hears("🌍 На сайт", goToSite);
 bot.command("start", start);
 
 bot.on("callback_query:data", async (ctx) => {
