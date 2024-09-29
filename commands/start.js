@@ -1,5 +1,6 @@
 const { InlineKeyboard } = require("grammy");
 const { User } = require("../models/userModel");
+const { showMainMenu } = require("../commands/showMainMenu");
 async function start(ctx) {
   const startKeyboard = new InlineKeyboard().text(
     "Начать регистрацию 🥊",
@@ -16,8 +17,9 @@ async function registerCommand(ctx) {
     const user = await User.findOne({ telegramId: userId }).exec();
     
     if (user) {
-      // Если пользователь уже существует, сообщаем об этом
-      await ctx.reply("Ты уже зарегистрирован!");
+      // Если пользователь уже зарегистрирован
+      await ctx.reply("Ты уже зарегистрирован! Выбери действие:");
+      await showMainMenu(ctx); // Показываем главное меню
     } else {
       // Если пользователь не найден, начинаем регистрацию
       ctx.session.registrationStep = 1;
