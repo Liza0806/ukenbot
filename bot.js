@@ -12,6 +12,7 @@ const { yesHandler } = require("./handlers/yesHandler");
 const { noHandler } = require("./handlers/noHandler");
 const { handleBotError } = require("./handlers/errorHandler");
 const { myEvents } = require("./handlers/myEvents");
+const { goToSite } = require("./handlers/goToSite");
 const { showMainMenu } = require("./commands/showMainMenu");
 
 const app = express();
