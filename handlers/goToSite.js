@@ -1,9 +1,9 @@
 const { User } = require("../models/userModel");
 
 async function goToSite(ctx) {
-  const userId = ctx.from.id.toString();
+  const userId = ctx.from.id;
 
-  const user = await User.findOne({ "_id": userId });
+  const user = await User.findOne({ "telegramId": userId });
 
   if (!user) {
     return ctx.reply("Пользователь не найден.");
