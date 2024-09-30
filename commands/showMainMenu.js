@@ -8,9 +8,21 @@ async function showMainMenu(ctx) {
     .text("💰 Проверить оплату")
     .text("🌍 Перейти на сайт");
 
-  await ctx.reply("Выберите действие:", {
+  await ctx.reply("Выбери действие:", {
+    reply_markup: mainMenu.resized().oneTime(),
+  });
+}
+async function showMainAdminMenu(ctx) {
+  const mainMenu = new Keyboard()
+    .text("🔍 График на сегодня")
+    .text("📝 Написать 1 группе")
+    .row()
+    .text("Написать всем")
+    .text("🌍 Перейти на сайт");
+
+  await ctx.reply("Выбери действие:", {
     reply_markup: mainMenu.resized().oneTime(),
   });
 }
 
-module.exports = { showMainMenu };
+module.exports = { showMainMenu, showMainAdminMenu };
