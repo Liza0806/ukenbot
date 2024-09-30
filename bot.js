@@ -84,7 +84,7 @@ bot.on('message', async (ctx) => {
       if (selectedGroupId) {
         const group = await Group.findById(selectedGroupId);
         if (group) {
-          users = await User.find({ _id: { $in: group.participants } }); // Получаем участников группы
+          users = group.participants// Получаем участников группы
         } else {
           return ctx.reply("Группа не найдена.");
         }

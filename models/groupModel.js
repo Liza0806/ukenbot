@@ -16,7 +16,7 @@ const validDays = [
 const participantsSchemaJoi = Joi.object({
   name: Joi.string().required(),
   id: Joi.string().required(),
-  telegramId: Joi.number.required(),
+  telegramId: Joi.number().required(),
 });
 
 const scheduleSchema = new Schema({
