@@ -17,26 +17,27 @@ const { User } = require("./models/userModel");
 const { Group } = require("./models/groupModel");
 
 const app = express();
-app.use(
-  (req, res, next) => {
-    res.setHeader(
-      "Content-Security-Policy",
-      "default-src 'self'; script-src 'self' https://vercel.live"
-    );
-    next();
-  }
-);
-
 app.use(bodyParser.json());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 const port = process.env.PORT || 3000;
 
 // Подключение к базе данных
-mongoose.connect(process.env.DB_HOST).then(() => console.log('Database connected'))
-.catch(err => console.error('Database connection error:', err));
+mongoose
+  .connect(process.env.DB_HOST)
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database connection error:", err));
 
 // Инициализация бота
 const bot = new Bot(process.env.BOT_API_KEY);
-bot.use(session({ initial: () => ({ stage: null, messageText: '', selectedGroupId: null }) }));
+bot.use(
+  session({
+    initial: () => ({ stage: null, messageText: "", selectedGroupId: null }),
+  })
+);
 
 // Команды и обработчики
 bot.command("register", registerCommand);
@@ -45,12 +46,12 @@ bot.hears("🔍 Выбрать группу", handleGroupSelection);
 bot.hears("📝 Мои посещения", myEvents);
 bot.hears("🌍 Перейти на сайт", goToSite);
 bot.hears("Написать всем", (ctx) => {
-  ctx.session.stage = 'waiting_for_message'; // Устанавливаем этап ожидания текста
-  ctx.reply('Введите текст, который хотите разослать всем пользователям.');
+  ctx.session.stage = "waiting_for_message"; // Устанавливаем этап ожидания текста
+  ctx.reply("Введите текст, который хотите разослать всем пользователям.");
 });
 bot.hears("📝 Написать 1 группе", async (ctx) => {
-  ctx.session.stage = 'waiting_for_message'; // Устанавливаем этап ожидания текста
-  ctx.reply('Выберите группу:');
+  ctx.session.stage = "waiting_for_message"; // Устанавливаем этап ожидания текста
+  ctx.reply("Выберите группу:");
 
   try {
     const groups = await Group.find({});
@@ -76,12 +77,12 @@ bot.hears("📝 Написать 1 группе", async (ctx) => {
   }
 });
 
-bot.on('message', async (ctx) => {
-  if (ctx.session.stage === 'waiting_for_message') {
+bot.on("message", async (ctx) => {
+  if (ctx.session.stage === "waiting_for_message") {
     const messageText = ctx.message.text;
 
     if (!messageText) {
-      return ctx.reply('Пожалуйста, введите текст для рассылки.');
+      return ctx.reply("Пожалуйста, введите текст для рассылки.");
     }
 
     ctx.session.messageText = messageText; // Сохраняем текст в сессии
@@ -94,7 +95,7 @@ bot.on('message', async (ctx) => {
       if (selectedGroupId) {
         const group = await Group.findById(selectedGroupId);
         if (group) {
-          users = group.participants// Получаем участников группы
+          users = group.participants; // Получаем участников группы
         } else {
           return ctx.reply("Группа не найдена.");
         }
@@ -106,18 +107,21 @@ bot.on('message', async (ctx) => {
         try {
           await ctx.api.sendMessage(user.telegramId, messageText); // Рассылаем сообщение
         } catch (err) {
-          console.error(`Не удалось отправить сообщение пользователю с ID ${user.telegramId}:`, err);
+          console.error(
+            `Не удалось отправить сообщение пользователю с ID ${user.telegramId}:`,
+            err
+          );
         }
       }
       if (selectedGroupId) {
-        ctx.reply(`Сообщение успешно отправлено пользователям группы` );
+        ctx.reply(`Сообщение успешно отправлено пользователям группы`);
       } else {
-              ctx.reply('Сообщение успешно отправлено всем пользователям.');
+        ctx.reply("Сообщение успешно отправлено всем пользователям.");
       }
       ctx.session.selectedGroupId = null; // Сбрасываем ID группы после рассылки
     } catch (err) {
       console.error("Ошибка при рассылке сообщений:", err);
-      ctx.reply('Произошла ошибка при рассылке сообщений.');
+      ctx.reply("Произошла ошибка при рассылке сообщений.");
     }
   }
 });
@@ -135,8 +139,10 @@ bot.on("callback_query:data", async (ctx) => {
       const parsedData = JSON.parse(data);
       if (parsedData.id && parsedData.title) {
         ctx.session.selectedGroupId = parsedData.id; // Сохраняем выбранный ID группы
-        ctx.reply(`Вы выбрали группу: ${parsedData.title}. Введите текст сообщения для отправки.`);
-        ctx.session.stage = 'waiting_for_message'; // Устанавливаем ожидание сообщения
+        ctx.reply(
+          `Вы выбрали группу: ${parsedData.title}. Введите текст сообщения для отправки.`
+        );
+        ctx.session.stage = "waiting_for_message"; // Устанавливаем ожидание сообщения
       } else {
         await ctx.reply("Неверный формат JSON.");
       }
@@ -159,10 +165,10 @@ bot.catch(handleBotError);
 
 // Инициализация бота и запуск сервера
 (async () => {
-  await bot.init();  // Инициализация бота
+  await bot.init(); // Инициализация бота
 
-  app.post('/webhook', (req, res) => {
-    console.log('Received update:', req.body);
+  app.post("/webhook", (req, res) => {
+    console.log("Received update:", req.body);
     bot.handleUpdate(req.body);
     res.sendStatus(200);
   });
