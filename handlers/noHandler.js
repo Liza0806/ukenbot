@@ -24,7 +24,7 @@ async function noHandler(ctx) {
       return;
     }
 
-    const event = await Event.findById(ctx.session.nextEvent);
+    const event = await Event.findById(ctx.session.Event);
     if (!event) {
       const reply = await ctx.reply("Событие не найдено 😕");
       replyMessageIds.push(reply.message_id);
@@ -47,7 +47,7 @@ async function noHandler(ctx) {
 
     // Отправляем сообщение с клавиатурой
     const reply = await ctx.reply(
-      `Даже у самых сильных иногда бывают минуты слабости! 😔 Ты не идешь на тренировку ${ctx.session.nextEventDate} в ${ctx.session.nextEventTime} вместе с группой ${ctx.session.groupTitle}.`,
+      `Даже у самых сильных иногда бывают минуты слабости! 😔 Ты не идешь на тренировку ${ctx.session.EventDate} в ${ctx.session.EventTime} вместе с группой ${ctx.session.groupTitle}.`,
       {
         reply_markup: cancelTrainingKeyboard,
       }

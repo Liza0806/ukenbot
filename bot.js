@@ -17,6 +17,16 @@ const { User } = require("./models/userModel");
 const { Group } = require("./models/groupModel");
 
 const app = express();
+app.use(
+  (req, res, next) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' https://vercel.live"
+    );
+    next();
+  }
+);
+
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
