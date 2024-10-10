@@ -41,7 +41,7 @@ bot.hears("Написать всем", (ctx) => {
 bot.hears("📝 Написать 1 группе", async (ctx) => {
   ctx.session.stage = 'waiting_for_message'; // Устанавливаем этап ожидания текста
   ctx.reply('Выберите группу:');
-
+console.log(ctx, 'ctx in write 1 group')
   try {
     const groups = await Group.find({});
 
@@ -68,6 +68,7 @@ bot.hears("📝 Написать 1 группе", async (ctx) => {
 
 bot.on('message', async (ctx) => {
   if (ctx.session.stage === 'waiting_for_message') {
+    console.log(ctx, 'ctx in  if ctx.session.stage ===')
     const messageText = ctx.message.text;
 
     if (!messageText) {
@@ -105,6 +106,7 @@ bot.on('message', async (ctx) => {
               ctx.reply('Сообщение успешно отправлено всем пользователям.');
       }
       ctx.session.selectedGroupId = null; // Сбрасываем ID группы после рассылки
+ 
     } catch (err) {
       console.error("Ошибка при рассылке сообщений:", err);
       ctx.reply('Произошла ошибка при рассылке сообщений.');
