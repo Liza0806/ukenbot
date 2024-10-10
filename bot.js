@@ -123,7 +123,7 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "startwork") {
     await showMainMenu(ctx);
   } else if (data.startsWith("{")) {
-    try {
+    if (ctx.session.stage === 'waiting_for_message'){    try {
       const parsedData = JSON.parse(data);
       if (parsedData.id && parsedData.title) {
         ctx.session.selectedGroupId = parsedData.id; // Сохраняем выбранный ID группы
@@ -135,6 +135,9 @@ bot.on("callback_query:data", async (ctx) => {
     } catch (error) {
       console.error("Ошибка разбора JSON:", error);
       await ctx.reply("Ошибка при обработке данных.");
+    }}
+    else {
+      await myEvents(ctx);
     }
   } else if (data === "accept_training") {
     await yesHandler(ctx);
