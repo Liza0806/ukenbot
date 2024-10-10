@@ -13,6 +13,7 @@ const { handleBotError } = require("./handlers/errorHandler");
 const { myEvents } = require("./handlers/myEvents");
 const { goToSite } = require("./handlers/goToSite");
 const { showMainMenu } = require("./commands/showMainMenu");
+const { groupsCommand } = require("./commands/groups");
 const { User } = require("./models/userModel");
 const { Group } = require("./models/groupModel");
 
@@ -137,7 +138,7 @@ bot.on("callback_query:data", async (ctx) => {
       await ctx.reply("Ошибка при обработке данных.");
     }}
     else {
-      await myEvents(ctx);
+      await groupsCommand(ctx);
     }
   } else if (data === "accept_training") {
     await yesHandler(ctx);
