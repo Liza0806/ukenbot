@@ -9,7 +9,7 @@
   ],
   "headers": [
     {
-      "key": "Content-Security-Policy",
+      "source": "Content-Security-Policy",
       "value": "default-src 'self'; script-src 'self' https://vercel.live"
     }
   ]
