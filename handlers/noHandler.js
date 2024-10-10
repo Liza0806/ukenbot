@@ -24,7 +24,7 @@ async function noHandler(ctx) {
       return;
     }
 
-    const event = await Event.findById(ctx.session.Event);
+    const event = await Event.findById(ctx.session.nextEvent);
     if (!event) {
       const reply = await ctx.reply("Событие не найдено 😕");
       replyMessageIds.push(reply.message_id);
