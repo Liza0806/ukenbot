@@ -24,6 +24,14 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],  // Разрешаем загрузку ресурсов только с того же источника
+      scriptSrc: ["'self'", "https://vercel.live"],  // Разрешаем загрузку скриптов с вашего источника и Vercel
+    },
+  },
+}));
 const port = process.env.PORT || 3000;
 
 // Подключение к базе данных
