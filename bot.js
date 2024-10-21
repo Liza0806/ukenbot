@@ -39,23 +39,22 @@ const adminId = 1007855799;
 // Команды и обработчики
 bot.command("register", registerCommand);
 
-bot.hears("🔍 Выбрать группу", handleGroupSelection);
+bot.hears("🔍 Выбрать группу",  handleGroupSelection(ctx));
 
 bot.hears("📝 Мои посещения", myEvents);
 
 bot.hears("🌍 Перейти на сайт", goToSite);
 
 bot.hears("Написать всем", (ctx) => {
-  handleGroupSelection
   ctx.reply("Введите текст, который хотите разослать всем пользователям.");
 });
 
 bot.hears("📝 Написать 1 группе", async (ctx) => {
-  handleGroupSelection
+  handleGroupSelection(ctx);
 });
 
 bot.on('message', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
-  sendMessage(ctx)    /// тут мы пишем ВСЕМ
+  sendMessage(ctx);    /// тут мы пишем ВСЕМ
   ctx.session.selectedGroupId = ""; 
 });
 
