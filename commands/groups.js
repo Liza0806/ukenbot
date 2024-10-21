@@ -4,7 +4,7 @@ const { InlineKeyboard } = require("grammy");
 const { Group } = require("../models/groupModel");
 
 async function groupsCommand(ctx) {
-  if(ctx.session.stage !== 'waiting_for_message'){ 
+ 
     try {
       const callbackData = ctx.callbackQuery.data;
   
@@ -52,6 +52,8 @@ async function groupsCommand(ctx) {
     } catch (error) {
       await ctx.reply("❗️ Sorry, there was an error processing your request.");
     }
+  finally {
+    ctx.session.stage = ""
   }
   
 }
