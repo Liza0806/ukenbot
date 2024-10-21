@@ -16,6 +16,7 @@ const { showMainMenu } = require("./commands/showMainMenu");
 const { groupsCommand } = require("./commands/groups");
 const { User } = require("./models/userModel");
 const { Group } = require("./models/groupModel");
+const { Await } = require("react-router-dom");
 
 const app = express();
 app.use(bodyParser.json());
@@ -66,20 +67,16 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "startwork") {
     await showMainMenu(ctx);
   } else if (ctx.session.stage = "nearest_training") {
-    try {
+
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
-      groupsCommand(ctx);
-    } catch (error) {
-      await ctx.reply("Ошибка при обработке данных.");
-    }
+    await  groupsCommand(ctx);
+  
   } else if (ctx.session.stage = "waiting_for_message") {
-    try {
+ 
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
       ctx.reply(`Введите текст сообщения для отправки.`);
-      sendMessage(ctx); // Устанавливаем ожидание сообщения
-    } catch (error) {
-      await ctx.reply("Ошибка при обработке данных.");
-    }
+    await  sendMessage(ctx); // Устанавливаем ожидание сообщения
+   
   } else if (data === "accept_training") {
     await yesHandler(ctx);
   } else if (data === "cancel_training") {
