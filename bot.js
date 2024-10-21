@@ -46,14 +46,12 @@ bot.hears("📝 Мои посещения", myEvents);
 bot.hears("🌍 Перейти на сайт", goToSite);
 
 bot.hears("Написать всем", (ctx) => {
-  ctx.session.stage = "waiting_for_message"; // Устанавливаем этап ожидания текста
+  handleGroupSelection
   ctx.reply("Введите текст, который хотите разослать всем пользователям.");
 });
 
 bot.hears("📝 Написать 1 группе", async (ctx) => {
-  ctx.session.stage = "waiting_for_message"; // Устанавливаем этап ожидания текста
-  ctx.reply("Выберите группу:");
-  writeToOneGroup(ctx);
+  handleGroupSelection
 });
 
 bot.on('message', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
@@ -71,8 +69,9 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "startwork") {
     await showMainMenu(ctx);
   } else if (ctx.session.stage = "nearest_training") {
+
     try {
-      ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+      ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
       groupsCommand(ctx);
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
