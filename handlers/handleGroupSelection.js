@@ -20,25 +20,26 @@ async function handleGroupSelection(ctx) {
     const rows = groupWithId.map((group) => [
       {
         text: group.title,
-        callback_data: JSON.stringify({ id: group._id, title: group.title }),
+        callback_data:  group._id,
       },
     ]);
+   // ctx.session.stage = 'chose_group_for_training';
     const groupKeyboard = new InlineKeyboard(rows);
 
     const botMessage = await ctx.reply("📋 Выбери группу:", {
       reply_markup: groupKeyboard,
     });
 
-    replyMessageIds.push(userMessageId);
-    replyMessageIds.push(botMessage.message_id);
-    deleteMessageAfterDelay(ctx, replyMessageIds, 5000);
+  //  replyMessageIds.push(userMessageId);
+   // replyMessageIds.push(botMessage.message_id);
+   // deleteMessageAfterDelay(ctx, replyMessageIds, 5000);
   } catch (error) {
     const errorMessage = await ctx.reply(
       "🚨 Извините, произошла ошибка при загрузке групп."
     );
-    replyMessageIds.push(userMessageId);
-    replyMessageIds.push(errorMessage.message_id);
-    deleteMessageAfterDelay(ctx, replyMessageIds, 500);
+   // replyMessageIds.push(userMessageId);
+   // replyMessageIds.push(errorMessage.message_id);
+   // deleteMessageAfterDelay(ctx, replyMessageIds, 500);
   }
 }
 
