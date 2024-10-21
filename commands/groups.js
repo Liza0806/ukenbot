@@ -1,13 +1,15 @@
 const { Event } = require("../models/eventModel");
 const moment = require("moment");
 const { InlineKeyboard } = require("grammy");
+const { Group } = require("../models/groupModel");
 
 async function groupsCommand(ctx) {
   try {
-    const callbackData = JSON.parse(ctx.callbackQuery.data);
+    const callbackData = ctx.callbackQuery.data;
 
-    const groupId = callbackData.id;
-    const groupTitle = callbackData.title;
+    const groupId = callbackData;
+    const group = Group.findById(groupId);
+    const groupTitle = group.title;
     const events = await Event.find({ groupId: groupId }).exec();
     if (!events) {
       return ctx.reply("⚠️ Events not found");

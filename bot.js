@@ -53,7 +53,7 @@ console.log(ctx, 'ctx in write 1 group')
     const rows = groups.map((group) => [
       {
         text: `Написать ${group.title}`,
-        callback_data: JSON.stringify({ id: group._id, title: group.title }),
+        callback_data: group._id /// JSON.stringify({ id: group._id, title: group.title }),
       },
     ]);
     const groupKeyboard = new InlineKeyboard(rows);
@@ -123,8 +123,8 @@ bot.on("callback_query:data", async (ctx) => {
     await registerCommand(ctx);
   } else if (data === "startwork") {
     await showMainMenu(ctx);
-  } else if (data.startsWith("{")) {
-    if (ctx.session.stage === 'waiting_for_message'){    try {
+  } else if ((ctx.session.stage === 'waiting_for_message')) {
+      try {
       const parsedData = JSON.parse(data);
       if (parsedData.id && parsedData.title) {
         ctx.session.selectedGroupId = parsedData.id; // Сохраняем выбранный ID группы
@@ -136,10 +136,9 @@ bot.on("callback_query:data", async (ctx) => {
     } catch (error) {
       console.error("Ошибка разбора JSON:", error);
       await ctx.reply("Ошибка при обработке данных.");
-    }}
-    else {
-      await groupsCommand(ctx);
     }
+      await groupsCommand(ctx);
+    
   } else if (data === "accept_training") {
     await yesHandler(ctx);
   } else if (data === "cancel_training") {
