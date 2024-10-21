@@ -153,7 +153,7 @@ const writeToOneGroup = async (ctx) => {
   }
 };
 
-export const sendMessage = async (ctx) => {
+const sendMessage = async (ctx) => {
   if (ctx.session.stage === "waiting_for_message") {
     const messageText = ctx.message.text;
 
