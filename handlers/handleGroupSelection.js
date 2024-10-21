@@ -6,7 +6,7 @@ const { adminId } = require("../bot");
 async function handleGroupSelection(ctx) {
   const userMessageId = ctx.message.message_id;
   const userId = ctx.from.id;
-  const adminId = 1007855799;
+  const adminId = "1007855799";
 if(userId === adminId){
   ctx.session.stage = "waiting_for_message";
 } else {
