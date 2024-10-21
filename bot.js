@@ -66,16 +66,16 @@ bot.on("callback_query:data", async (ctx) => {
     await registerCommand(ctx);
   } else if (data === "startwork") {
     await showMainMenu(ctx);
-  } else if (ctx.session.stage = "nearest_training") {
+  } else if (ctx.session.stage === "nearest_training") {
 
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
-    await  groupsCommand(ctx);
+    await groupsCommand(ctx);
   
-  } else if (ctx.session.stage = "waiting_for_message") {
+  } else if (ctx.session.stage === "waiting_for_message") {
  
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
       ctx.reply(`Введите текст сообщения для отправки.`);
-    await  sendMessage(ctx); // Устанавливаем ожидание сообщения
+    await sendMessage(ctx); // Устанавливаем ожидание сообщения
    
   } else if (data === "accept_training") {
     await yesHandler(ctx);
