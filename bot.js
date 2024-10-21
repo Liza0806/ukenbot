@@ -34,7 +34,7 @@ bot.use(
     initial: () => ({ stage: null, messageText: "", selectedGroupId: null }),
   })
 );
-export const adminId = 1007855799;
+const adminId = 1007855799;
 
 // Команды и обработчики
 bot.command("register", registerCommand);
