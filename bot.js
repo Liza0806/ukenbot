@@ -28,21 +28,93 @@ mongoose.connect(process.env.DB_HOST).then(() => console.log('Database connected
 // Инициализация бота
 const bot = new Bot(process.env.BOT_API_KEY);
 bot.use(session({ initial: () => ({ stage: null, messageText: '', selectedGroupId: null }) }));
+export const adminId = 1007855799;
+
 
 // Команды и обработчики
 bot.command("register", registerCommand);
 
 bot.hears("🔍 Выбрать группу", handleGroupSelection);
+
 bot.hears("📝 Мои посещения", myEvents);
+
 bot.hears("🌍 Перейти на сайт", goToSite);
+
 bot.hears("Написать всем", (ctx) => {
   ctx.session.stage = 'waiting_for_message'; // Устанавливаем этап ожидания текста
   ctx.reply('Введите текст, который хотите разослать всем пользователям.');
 });
+
 bot.hears("📝 Написать 1 группе", async (ctx) => {
   ctx.session.stage = 'waiting_for_message'; // Устанавливаем этап ожидания текста
   ctx.reply('Выберите группу:');
-console.log(ctx, 'ctx in write 1 group')
+writeToOneGroup(ctx);
+});
+
+// bot.on('message', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
+//   sendMessage(ctx)
+// });
+
+bot.command("start", start);
+
+bot.on("callback_query:data", async (ctx) => {  ///callback_query:data - обработчик инлайн кнопок
+  const data = ctx.callbackQuery.data;
+  if (data === "register") {
+    await registerCommand(ctx);
+  } else if (data === "startwork") {
+    await showMainMenu(ctx);
+  } else if (data.startsWith('Группа')) {
+      try {
+       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+       groupsCommand(ctx)
+        ctx.session.stage = 'waiting_for_message'; // Устанавливаем ожидание сообщения
+      
+    } catch (error) {
+      await ctx.reply("Ошибка при обработке данных.");
+    }
+    
+  }  else if (data.startsWith('Написать')) {
+    try {
+      ctx.session.stage = 'waiting_for_message';
+      ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+      ctx.reply(`Введите текст сообщения для отправки.`);
+     sendMessage(ctx) // Устанавливаем ожидание сообщения
+    
+  } catch (error) {
+    await ctx.reply("Ошибка при обработке данных.");
+  }
+ 
+  
+}
+  else if (data === "accept_training") {
+    await yesHandler(ctx);
+  } else if (data === "cancel_training") {
+    await noHandler(ctx);
+  } else {
+    await ctx.reply("Неизвестная команда или формат данных.");
+  }
+});
+
+bot.callbackQuery("cancel_training", noHandler);
+bot.on("message:text", handleTextMessages);
+bot.catch(handleBotError);
+
+// Инициализация бота и запуск сервера
+(async () => {
+  await bot.init();  // Инициализация бота
+
+  app.post('/webhook', (req, res) => {
+    console.log('Received update:', req.body);
+    bot.handleUpdate(req.body);
+    res.sendStatus(200);
+  });
+
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+})();
+
+const  writeToOneGroup =async (ctx) => {
   try {
     const groups = await Group.find({});
 
@@ -65,11 +137,10 @@ console.log(ctx, 'ctx in write 1 group')
     console.error("Ошибка при загрузке групп:", error);
     await ctx.reply("🚨 Извините, произошла ошибка при загрузке групп.");
   }
-});
+}
 
-bot.on('message', async (ctx) => {
+export const sendMessage = async (ctx) => {
   if (ctx.session.stage === 'waiting_for_message') {
-    console.log(ctx, 'ctx in  if ctx.session.stage ===')
     const messageText = ctx.message.text;
 
     if (!messageText) {
@@ -77,7 +148,7 @@ bot.on('message', async (ctx) => {
     }
 
     ctx.session.messageText = messageText; // Сохраняем текст в сессии
-    ctx.session.stage = null; // Сбрасываем этап
+    ctx.session.stage = ''; // Сбрасываем этап
 
     try {
       const selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
@@ -106,59 +177,11 @@ bot.on('message', async (ctx) => {
       } else {
               ctx.reply('Сообщение успешно отправлено всем пользователям.');
       }
-      ctx.session.selectedGroupId = null; // Сбрасываем ID группы после рассылки
+      ctx.session.selectedGroupId = ''; // Сбрасываем ID группы после рассылки
  
     } catch (err) {
       console.error("Ошибка при рассылке сообщений:", err);
       ctx.reply('Произошла ошибка при рассылке сообщений.');
     }
   }
-});
-
-bot.command("start", start);
-
-bot.on("callback_query:data", async (ctx) => {
-  const data = ctx.callbackQuery.data;
-  if (data === "register") {
-    await registerCommand(ctx);
-  } else if (data === "startwork") {
-    await showMainMenu(ctx);
-  } else if ((ctx.session.stage === 'waiting_for_message')) {
-      try {
-    
-        ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
-        ctx.reply(`Введите текст сообщения для отправки.`);
-        ctx.session.stage = 'waiting_for_message'; // Устанавливаем ожидание сообщения
-      
-    } catch (error) {
-      await ctx.reply("Ошибка при обработке данных.");
-    }
-      await groupsCommand(ctx);
-    
-  } else if (data === "accept_training") {
-    await yesHandler(ctx);
-  } else if (data === "cancel_training") {
-    await noHandler(ctx);
-  } else {
-    await ctx.reply("Неизвестная команда или формат данных.");
-  }
-});
-
-bot.callbackQuery("cancel_training", noHandler);
-bot.on("message:text", handleTextMessages);
-bot.catch(handleBotError);
-
-// Инициализация бота и запуск сервера
-(async () => {
-  await bot.init();  // Инициализация бота
-
-  app.post('/webhook', (req, res) => {
-    console.log('Received update:', req.body);
-    bot.handleUpdate(req.body);
-    res.sendStatus(200);
-  });
-
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
-})();
+}

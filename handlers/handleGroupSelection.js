@@ -12,14 +12,14 @@ async function handleGroupSelection(ctx) {
 
     if (groupWithId.length === 0) {
       const reply = await ctx.reply("🤔 Не найдено групп.");
-      replyMessageIds.push(reply.message_id);
-      deleteMessageAfterDelay(ctx, replyMessageIds, 500);
+ //     replyMessageIds.push(reply.message_id);
+   //   deleteMessageAfterDelay(ctx, replyMessageIds, 500);
       return;
     }
 
     const rows = groupWithId.map((group) => [
       {
-        text: group.title,
+        text:`Группа ${group.title}`,
         callback_data:  group._id,
       },
     ]);
