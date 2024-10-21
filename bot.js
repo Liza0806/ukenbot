@@ -125,16 +125,15 @@ bot.on("callback_query:data", async (ctx) => {
     await showMainMenu(ctx);
   } else if ((ctx.session.stage === 'waiting_for_message')) {
       try {
-      const parsedData = JSON.parse(data);
+     
       if (parsedData.id && parsedData.title) {
-        ctx.session.selectedGroupId = parsedData.id; // Сохраняем выбранный ID группы
-        ctx.reply(`Вы выбрали группу: ${parsedData.title}. Введите текст сообщения для отправки.`);
+        ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+        ctx.reply(`Введите текст сообщения для отправки.`);
         ctx.session.stage = 'waiting_for_message'; // Устанавливаем ожидание сообщения
       } else {
         await ctx.reply("Неверный формат JSON.");
       }
     } catch (error) {
-      console.error("Ошибка разбора JSON:", error);
       await ctx.reply("Ошибка при обработке данных.");
     }
       await groupsCommand(ctx);
