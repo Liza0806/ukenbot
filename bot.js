@@ -66,19 +66,17 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "startwork") {
     await showMainMenu(ctx);
   } else if (ctx.session.stage = "nearest_training") {
-
     try {
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
-      groupsCommand(ctx);
+      groupsCommand;
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
     }
   } else if (ctx.session.stage = "waiting_for_message") {
     try {
-      ctx.session.stage = "waiting_for_message";
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
       ctx.reply(`Введите текст сообщения для отправки.`);
-      sendMessage(ctx); // Устанавливаем ожидание сообщения
+      sendMessage; // Устанавливаем ожидание сообщения
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
     }
