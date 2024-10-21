@@ -16,7 +16,6 @@ const { showMainMenu } = require("./commands/showMainMenu");
 const { groupsCommand } = require("./commands/groups");
 const { User } = require("./models/userModel");
 const { Group } = require("./models/groupModel");
-const { Await } = require("react-router-dom");
 
 const app = express();
 app.use(bodyParser.json());
