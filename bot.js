@@ -125,14 +125,11 @@ bot.on("callback_query:data", async (ctx) => {
     await showMainMenu(ctx);
   } else if ((ctx.session.stage === 'waiting_for_message')) {
       try {
-     
-      if (parsedData.id && parsedData.title) {
+    
         ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
         ctx.reply(`Введите текст сообщения для отправки.`);
         ctx.session.stage = 'waiting_for_message'; // Устанавливаем ожидание сообщения
-      } else {
-        await ctx.reply("Неверный формат JSON.");
-      }
+      
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
     }
