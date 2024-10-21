@@ -68,7 +68,7 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (ctx.session.stage = "nearest_training") {
     try {
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
-      groupsCommand;
+      groupsCommand(ctx);
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
     }
@@ -76,7 +76,7 @@ bot.on("callback_query:data", async (ctx) => {
     try {
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
       ctx.reply(`Введите текст сообщения для отправки.`);
-      sendMessage; // Устанавливаем ожидание сообщения
+      sendMessage(ctx); // Устанавливаем ожидание сообщения
     } catch (error) {
       await ctx.reply("Ошибка при обработке данных.");
     }
