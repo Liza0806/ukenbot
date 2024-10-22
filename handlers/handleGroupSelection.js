@@ -1,7 +1,7 @@
 const { InlineKeyboard } = require("grammy");
 const { Group } = require("../models/groupModel");
 const { deleteMessageAfterDelay } = require("../helpers/deleteMessageAfterDelay");
-const { adminId } = require("../bot");
+// const { adminId } = require("../bot");
   const adminId = 1007855799;
 async function handleGroupSelection(ctx) {
  
