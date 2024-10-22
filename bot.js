@@ -166,9 +166,11 @@ const sendMessage = async (ctx) => {
         } else {
           return ctx.reply("Группа не найдена.");
         }
+        selectedGroupId = null
       } else {
         users = await User.find({ telegramId: { $exists: true } });
-      }
+        selectedGroupId = null
+      } 
 
       for (let user of users) {
         try {
