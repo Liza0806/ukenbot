@@ -4,9 +4,9 @@ const { deleteMessageAfterDelay } = require("../helpers/deleteMessageAfterDelay"
 // const { adminId } = require("../bot");
   const adminId = 1007855799;
 async function handleGroupSelection(ctx) {
- 
-  const userId = ctx.message.from.id;
 
+  const userId = ctx.message.from.id;
+ console.log(userId, '-userId')
 if(userId === adminId){
   ctx.session.stage = "waiting_for_message";
 } else {
