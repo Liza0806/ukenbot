@@ -46,7 +46,7 @@ bot.hears("📝 Мои посещения", myEvents);
 bot.hears("🌍 Перейти на сайт", goToSite);
 
 bot.hears("Написать всем", (ctx) => {
-  ctx.session.stage === "waiting_for_message"
+  ctx.session.stage = "waiting_for_message"
   ctx.reply("Введите текст, который хотите разослать всем пользователям.");
 });
 
