@@ -54,7 +54,7 @@ async function groupsCommand(ctx) {
     }
   finally {
     ctx.session.stage = ""
-    selectedGroupId = null
+    selectedGroupId = undefined
   }
   
 }
