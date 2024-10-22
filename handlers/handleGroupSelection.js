@@ -2,11 +2,11 @@ const { InlineKeyboard } = require("grammy");
 const { Group } = require("../models/groupModel");
 const { deleteMessageAfterDelay } = require("../helpers/deleteMessageAfterDelay");
 const { adminId } = require("../bot");
-
-async function handleGroupSelection(ctx) {
-  const userMessageId = ctx.message.message_id;
-  const userId = ctx.callbackQuery.from.id;
   const adminId = 1007855799;
+async function handleGroupSelection(ctx) {
+ 
+  const userId = ctx.message.from.id;
+
 if(userId === adminId){
   ctx.session.stage = "waiting_for_message";
 } else {
