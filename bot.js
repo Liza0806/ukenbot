@@ -157,7 +157,7 @@ const sendMessage = async (ctx) => {
     ctx.session.stage = ""; // Сбрасываем этап
 
     try {
-      const selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
+      let selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
       let users;
 
       if (selectedGroupId) {
