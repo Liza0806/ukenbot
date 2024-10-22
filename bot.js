@@ -51,8 +51,9 @@ bot.hears("Написать всем", (ctx) => {
 
 bot.hears("📝 Написать 1 группе", handleGroupSelection);
 
-bot.on('message', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
-  sendMessage(ctx);    /// тут мы пишем ВСЕМ
+bot.on('message:text', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
+   if (ctx.session.stage === "waiting_for_message"){
+    await sendMessage(ctx); }   /// тут мы пишем ВСЕМ
   ctx.session.selectedGroupId = ""; 
 });
 
@@ -73,8 +74,8 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (ctx.session.stage === "waiting_for_message") {
  
       ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
-      ctx.reply(`Введите текст сообщения для отправки.`);
-    await sendMessage(ctx); // Устанавливаем ожидание сообщения
+     await ctx.reply(`Введите текст сообщения для отправки.`);
+  
    
   } else if (data === "accept_training") {
     await yesHandler(ctx);
