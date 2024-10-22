@@ -37,7 +37,7 @@ async function groupsCommand(ctx) {
       ctx.session.nextEvent = nextEvent._id;
       ctx.session.groupTitle = groupTitle;
   
-      console.log(" ctx.session", ctx.session);
+      console.log("ctx.session", ctx.session);
   
       const inlineKeyboard = new InlineKeyboard()
         .text("✅ Пойду", "accept_training")
