@@ -176,10 +176,6 @@ const sendMessage = async (ctx) => {
       for (let user of users) {
         try {
           await ctx.api.sendMessage(user.telegramId, messageText); // Рассылаем сообщение
-        selectedGroupId? 
-        ctx.reply(`Сообщение успешно отправлено пользователям группы`)
-  :
-        ctx.reply("Сообщение успешно отправлено всем пользователям.");
       
         } catch (err) {
           console.error(
@@ -194,6 +190,12 @@ const sendMessage = async (ctx) => {
       console.error("Ошибка при рассылке сообщений:", err);
       ctx.reply("Произошла ошибка при рассылке сообщений.");
     } finally {
+   
+        selectedGroupId? 
+      await  ctx.reply(`Сообщение успешно отправлено пользователям группы`)
+  :
+      await  ctx.reply("Сообщение успешно отправлено всем пользователям.");
+      
        ctx.session.selectedGroupId = ""; 
     }
   }
