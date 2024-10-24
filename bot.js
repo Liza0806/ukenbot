@@ -39,23 +39,25 @@ const adminId = 1007855799;
 // Команды и обработчики
 bot.command("register", registerCommand);
 
-bot.hears("🔍 Выбрать группу",  handleGroupSelection);
+bot.hears("🔍 Выбрать группу", handleGroupSelection);
 
 bot.hears("📝 Мои посещения", myEvents);
 
 bot.hears("🌍 Перейти на сайт", goToSite);
 
 bot.hears("Написать всем", (ctx) => {
-  ctx.session.stage = "waiting_for_message"
+  ctx.session.stage = "waiting_for_message";
   ctx.reply("Введите текст, который хотите разослать всем пользователям.");
 });
 
 bot.hears("📝 Написать 1 группе", handleGroupSelection);
 
-bot.on('message:text', async (ctx) => { /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
-   if (ctx.session.stage === "waiting_for_message"){
-    await sendMessage(ctx); }   /// тут мы пишем ВСЕМ
-  ctx.session.selectedGroupId = ""; 
+bot.on("message:text", async (ctx) => {
+  /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
+  if (ctx.session.stage === "waiting_for_message") {
+    await sendMessage(ctx);
+  } /// тут мы пишем ВСЕМ
+  ctx.session.selectedGroupId = "";
 });
 
 bot.command("start", start);
@@ -68,16 +70,11 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "startwork") {
     await showMainMenu(ctx);
   } else if (ctx.session.stage === "nearest_training") {
-
-      ctx.session.selectedGroupId = data; // Сохраняем выбранный ID 
+    ctx.session.selectedGroupId = data; // Сохраняем выбранный ID
     await groupsCommand(ctx);
-  
   } else if (ctx.session.stage === "waiting_for_message") {
- 
-      ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
-     await ctx.reply(`Введите текст сообщения для отправки.`);
-  
-   
+    ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+    await ctx.reply(`Введите текст сообщения для отправки.`);
   } else if (data === "accept_training") {
     await yesHandler(ctx);
   } else if (data === "cancel_training") {
@@ -105,20 +102,6 @@ bot.catch(handleBotError);
     console.log(`Server is running on port ${port}`);
   });
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const writeToOneGroup = async (ctx) => {
   try {
@@ -155,11 +138,10 @@ const sendMessage = async (ctx) => {
 
     ctx.session.messageText = messageText; // Сохраняем текст в сессии
     ctx.session.stage = ""; // Сбрасываем этап
-
-    try {
-      let selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
+    let selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
+    try { 
+      
       let users;
-
       if (selectedGroupId) {
         const group = await Group.findById(selectedGroupId);
         if (group) {
@@ -167,16 +149,15 @@ const sendMessage = async (ctx) => {
         } else {
           return ctx.reply("Группа не найдена.");
         }
-        ctx.session.selectedGroupId = undefined
+        //  ctx.session.selectedGroupId = undefined
       } else {
         users = await User.find({ telegramId: { $exists: true } });
-        ctx.session.selectedGroupId = undefined
-      } 
+        //  ctx.session.selectedGroupId = undefined
+      }
 
       for (let user of users) {
         try {
           await ctx.api.sendMessage(user.telegramId, messageText); // Рассылаем сообщение
-      
         } catch (err) {
           console.error(
             `Не удалось отправить сообщение пользователю с ID ${user.telegramId}:`,
@@ -184,19 +165,17 @@ const sendMessage = async (ctx) => {
           );
         }
       }
-     
-     // Сбрасываем ID группы после рассылки
+
+      // Сбрасываем ID группы после рассылки
     } catch (err) {
       console.error("Ошибка при рассылке сообщений:", err);
       ctx.reply("Произошла ошибка при рассылке сообщений.");
     } finally {
-   
-        selectedGroupId? 
-      await  ctx.reply(`Сообщение успешно отправлено пользователям группы`)
-  :
-      await  ctx.reply("Сообщение успешно отправлено всем пользователям.");
-      
-       ctx.session.selectedGroupId = ""; 
+      selectedGroupId
+        ? await ctx.reply(`Сообщение успешно отправлено пользователям группы`)
+        : await ctx.reply("Сообщение успешно отправлено всем пользователям.");
+
+      ctx.session.selectedGroupId = undefined;
     }
   }
 };
