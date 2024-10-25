@@ -1,12 +1,8 @@
-const { InlineKeyboard } = require("grammy");
 const { Event } = require("../models/eventModel");
-const {
-  deleteMessageAfterDelay,
-} = require("../helpers/deleteMessageAfterDelay");
+const { deleteMessageAfterDelay } = require("../helpers/deleteMessageAfterDelay");
 
 async function myEvents(ctx) {
   const userId = ctx.from.id.toString();
-
   let replyMessageIds = [];
 
   try {
@@ -26,18 +22,12 @@ async function myEvents(ctx) {
       return;
     }
 
-    // Создаем кнопки для клавиатуры
-    const rows = events.map((event) => [
-      {
-        text: `${event.date.toDateString()} - ${event.groupTitle}`,
-        callback_data: `event_${event._id}`,
-      },
-    ]);
-    const groupKeyboard = new InlineKeyboard(rows);
+    // Создаем нумерованный список тренировок
+    const eventList = events
+      .map((event, index) => `${index + 1}. ${event.date.toDateString()} - ${event.groupTitle}`)
+      .join("\n");
 
-    const reply = await ctx.reply("Вот твои тренировки:", {
-      reply_markup: groupKeyboard,
-    });
+    const reply = await ctx.reply(`Вот твои тренировки:\n\n${eventList}`);
     replyMessageIds.push(reply.message_id);
   } catch (error) {
     console.error("Ошибка при загрузке тренировок:", error);
