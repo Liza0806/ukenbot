@@ -7,12 +7,12 @@ async function myEvents(ctx) {
 
   try {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // 1 число текущего месяца
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Последний день текущего месяца
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     const events = await Event.find({
       "participants.id": userId,
-      date: { $gte: startOfMonth, $lte: endOfMonth }, // Фильтрация по дате
+      date: { $gte: startOfMonth, $lte: endOfMonth },
     });
 
     if (events.length === 0) {
@@ -22,12 +22,23 @@ async function myEvents(ctx) {
       return;
     }
 
-    // Создаем нумерованный список тренировок
+    // список тренировок 
     const eventList = events
-      .map((event, index) => `${index + 1}. ${event.date.toDateString()} - ${event.groupTitle}`)
+      .map((event, index) => {
+        const eventDate = event.date.toLocaleDateString("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        });
+        const dayOfWeek = event.date.toLocaleDateString("ru-RU", { weekday: "long" });
+        return `${index + 1}. ${eventDate}, ${dayOfWeek} (${event.groupTitle})`;
+      })
       .join("\n");
 
-    const reply = await ctx.reply(`Вот твои тренировки:\n\n${eventList}`);
+ 
+    const reply = await ctx.reply(
+      `Вот твои тренировки:\n\n${eventList}\n\nВсего в этом месяце ты был на тренировках ${events.length} раз.`
+    );
     replyMessageIds.push(reply.message_id);
   } catch (error) {
     console.error("Ошибка при загрузке тренировок:", error);
