@@ -10,7 +10,7 @@ async function goToSite(ctx) {
   }
 
   if (!user.isAdmin) {
-    return ctx.reply(`hello`); // `https://uken.netlify.app/users/${userId}`
+    return ctx.reply(`https://uken.netlify.app/users/${user._id}`); // `https://uken.netlify.app/users/${user._id}`
   }
 
   return ctx.reply("https://uken.netlify.app/events");
