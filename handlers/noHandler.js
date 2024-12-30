@@ -1,7 +1,4 @@
 const { InlineKeyboard } = require("grammy");
-const { Group } = require("../models/groupModel");
-const { User } = require("../models/userModel");
-const { Event } = require("../models/eventModel");
 const replyWithError = require("../helpers/replyWithError");
 const getEventById = require("../helpers/getEventById");
 const getGroupById = require("../helpers/getGroupById");

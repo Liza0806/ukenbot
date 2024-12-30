@@ -5,7 +5,7 @@ const getUserByTelegramId = require("../helpers/getUserByTelegramId");
 const addUserToEvent = require("../helpers/addUserToEvent");
 
 async function yesHandler(ctx) {
-   // Клавиатура для возможности отменить тренировку
+  // Клавиатура для возможности отменить тренировку
   const cancelTrainingKeyboard = new InlineKeyboard().text(
     "Отменить тренировку 🛑",
     "cancel_training"
@@ -13,7 +13,7 @@ async function yesHandler(ctx) {
 
   try {
     await ctx.answerCallbackQuery();
-    
+
     const event = await getEventById(ctx.session.nextEventId);
     if (!event) return replyWithError(ctx, "Событие не найдено 😕");
 

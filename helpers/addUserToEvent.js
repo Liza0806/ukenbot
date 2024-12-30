@@ -1,5 +1,3 @@
-const { User } = require("../models/userModel");
-
 // Функция для добавления пользователя в событие
 async function addUserToEvent(user, event, groupId) {
   if (!user || !event || !event.participants || !user.visits) {
