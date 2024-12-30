@@ -3,7 +3,6 @@ const { InlineKeyboard } = require("grammy");
 const bcrypt = require('bcryptjs');
 
 async function handleTextMessages(ctx) {
-  let replyMessageIds = [];
 
   if (ctx.session.registrationStep === 1) {
     ctx.session.registrationName = ctx.message.text;

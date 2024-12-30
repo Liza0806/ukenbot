@@ -3,60 +3,42 @@ const moment = require("moment");
 const { InlineKeyboard } = require("grammy");
 const { Group } = require("../models/groupModel");
 
-async function groupsCommand(ctx) {
- 
-    try {
-      const callbackData = ctx.callbackQuery.data;
-  
-      const groupId = callbackData;
-      const group = Group.findById(groupId);
-      const groupTitle = group.title;
-      const events = await Event.find({ groupId: groupId }).exec();
-      if (!events) {
-        return ctx.reply("⚠️ Events not found");
-      }
-  
-      const today = moment();
-      const upcomingEvents = events.filter(
-        (event) => !event.isCancelled && moment(event.date).isAfter(today)
-      );
-  
-      if (upcomingEvents.length === 0) {
-        return ctx.reply("🚫 No upcoming events found");
-      }
-  
-      const nextEvent = upcomingEvents.sort(
-        (a, b) => moment(a.date) - moment(b.date)
-      )[0];
-      const eventDate = moment(nextEvent.date).format("YYYY-MM-DD");
-      const eventTime = moment(nextEvent.date).format("HH:mm");
-  
-      ctx.session.selectedGroup = groupId;
-      ctx.session.nextEventDate = eventDate;
-      ctx.session.nextEventTime = eventTime;
-      ctx.session.nextEvent = nextEvent._id;
-      ctx.session.groupTitle = groupTitle;
-  
-      console.log("ctx.session", ctx.session);
-  
-      const inlineKeyboard = new InlineKeyboard()
-        .text("✅ Пойду", "accept_training")
-        .text("🚫 Не пойду", "cancel_training");
-  
-      await ctx.reply(
-        `📅 Следующая тренировка будет ${eventDate} в ${eventTime}. Пойдешь?`,
-        {
-          reply_markup: inlineKeyboard,
-        }
-      );
-    } catch (error) {
-      await ctx.reply("❗️ Sorry, there was an error processing your request.");
+async function groupsCommand(ctx, groupId) {
+  try {
+    const now = moment().toISOString(); // Используем .toISOString() для получения строки в формате ISO
+
+    // Запрос в MongoDB для поиска ближайшего будущего события по groupId
+    const upcomingEvent = await Event.find({
+      groupId: groupId, // Фильтруем по groupId
+      isCancelled: false, // Событие не отменено
+      date: { $gt: now }, // Дата события позже текущей
+    })
+      .sort({ date: 1 })
+      .limit(1)
+      .exec(); // Сортируем по дате (по возрастанию) и берем первое
+
+    if (upcomingEvent.length === 0) {
+      ctx.reply("Нет будущих событий для этой группы");
+      return;
     }
-  finally {
-    ctx.session.stage = ""
-    selectedGroupId = undefined
+
+    ctx.session.selectedGroupId = upcomingEvent[0].groupId; // это для yesHandler, не удаляй
+    ctx.session.nextEventId = upcomingEvent[0]._id; // это для yesHandler, не удаляй
+
+    const inlineKeyboard = new InlineKeyboard()
+      .text("✅ Пойду", "accept_training")
+      .text("🚫 Не пойду", "cancel_training");
+
+    await ctx.reply(
+      `📅 Следующая тренировка будет ${upcomingEvent[0]?.date}. Пойдешь?`,
+      {
+        reply_markup: inlineKeyboard,
+      }
+    );
+  } catch (error) {
+    console.error("Ошибка при получении событий:", error);
+    await ctx.reply("Произошла ошибка при получении событий.");
   }
-  
 }
 
 module.exports = { groupsCommand };

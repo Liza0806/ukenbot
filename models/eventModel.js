@@ -4,10 +4,10 @@ const { handleMongooseError } = require("../helpers/handleMongooseError");
 const Joi = require('joi'); 
 
 const eventSchema = new Schema({
-    // _id: {
-    //     type: String, 
-    //     required: false
-    // },
+    _id: {
+        type: String, 
+        required: false
+    },
     date: {
         type: String,
         required: true

@@ -15,8 +15,8 @@ const { myEvents } = require("./handlers/myEvents");
 const { goToSite } = require("./handlers/goToSite");
 const { showMainMenu } = require("./commands/showMainMenu");
 const { groupsCommand } = require("./commands/groups");
-const { User } = require("./models/userModel");
-const { Group } = require("./models/groupModel");
+const sendMessageToOneGroup = require("./handlers/sendMessageToOneGroup");
+const sendMessageToAllUsers = require("./handlers/sendMessageToAllUsers");
 
 const app = express();
 app.use(bodyParser.json());
@@ -39,56 +39,149 @@ const adminId = 1007855799;
 
 // Команды и обработчики
 bot.command("register", registerCommand);
+bot.command("start", (ctx) => showMainMenu(ctx)); ///// допиши команды
 
-bot.hears("🔍 Выбрать группу", handleGroupSelection);
-
-bot.hears("📝 Мои посещения", myEvents);
-
-bot.hears("🌍 Перейти на сайт", goToSite);
-
-bot.hears("Написать всем", (ctx) => {
-  ctx.session.stage = "waiting_for_message";
-  ctx.reply("Введите текст, который хотите разослать всем пользователям.");
-});
-
-bot.hears("📝 Написать 1 группе", handleGroupSelection);
-
-bot.hears("🔍 График на сегодня", getTodaySchedule);
+// ТОЛЬКО АДМИНУ: //////////////////////////////////////
 
 bot.on("message:text", async (ctx) => {
-  /// когда вы используете bot.on('message', ...), событие message срабатывает каждый раз, когда бот получает входящее сообщение от пользователя
-  if (ctx.session.stage === "waiting_for_message") {
-    await sendMessage(ctx);
-  } /// тут мы пишем ВСЕМ
-  ctx.session.selectedGroupId = "";
-});
+  if (ctx.session.stage === "waiting_for_message_to_one_group") {
+    try {
+      // Отправляем сообщение группе
+      await sendMessageToOneGroup(ctx, ctx.session.groupId);
 
-bot.command("start", start);
+      // Сброс состояния сессии
+      ctx.session.stage = undefined;
+      ctx.session.groupId = undefined;
+    } catch (error) {
+      console.error("Ошибка при отправке сообщения группе:", error);
+      ctx.reply("Произошла ошибка. Попробуйте снова позже.");
+    }
+  }
+  if (ctx.session.stage === "waiting_for_message_to_all_users") {
+    try {
+      // Отправляем сообщение группе
+      await sendMessageToAllUsers(ctx);
 
-bot.on("callback_query:data", async (ctx) => {
-  ///callback_query:data - обработчик инлайн кнопок
-  const data = ctx.callbackQuery.data;
-  if (data === "register") {
-    await registerCommand(ctx);
-  } else if (data === "startwork") {
-    await showMainMenu(ctx);
-  } else if (ctx.session.stage === "nearest_training") {
-    ctx.session.selectedGroupId = data; // Сохраняем выбранный ID
-    await groupsCommand(ctx);
-  } else if (ctx.session.stage === "waiting_for_message") {
-    ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
-    await ctx.reply(`Введите текст сообщения для отправки.`);
-  } else if (data === "accept_training") {
-    await yesHandler(ctx);
-  } else if (data === "cancel_training") {
-    await noHandler(ctx);
-  } else {
-    await ctx.reply("Неизвестная команда или формат данных.");
+      // Сброс состояния сессии
+      ctx.session.stage = undefined;
+    } catch (error) {
+      console.error("Ошибка при отправке сообщения пользователям", error);
+      ctx.reply(
+        "Произошла ошибка при отправке сообщения пользователям. Попробуйте снова позже."
+      );
+    }
   }
 });
 
-bot.callbackQuery("cancel_training", noHandler);
-bot.on("message:text", handleTextMessages);
+bot.callbackQuery("write_to_all", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  ctx.session.stage = "waiting_for_message_to_all_users";
+  await ctx.reply(
+    "Введите текст, который хотите разослать всем пользователям."
+  );
+});
+
+bot.callbackQuery("write_to_one_group", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  // ctx.session.stage = "waiting_for_message_to_one_group";
+  await handleGroupSelection(ctx);
+});
+
+bot.callbackQuery("schedule_today", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await getTodaySchedule(ctx);
+});
+
+bot.callbackQuery(/^message_([a-f0-9]{24})$/, async (ctx) => {
+  const match = ctx.callbackQuery.data.match(/^message_([a-f0-9]{24})$/);
+  ctx.session.stage = "waiting_for_message_to_one_group";
+
+  if (match && match[1]) {
+    ctx.session.groupId = match[1];
+    await ctx.reply(
+      "Введите текст, который хотите разослать пользователям группы."
+    );
+  } else {
+    await ctx.reply("Не удалось извлечь ID события.");
+  }
+});
+
+///////////////////////////////////////////////////
+
+// ТОЛЬКО ЮЗЕРУ:
+
+bot.callbackQuery("my_visits", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await myEvents(ctx);
+});
+
+bot.callbackQuery("accept_training", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await yesHandler(ctx);
+}); //
+
+bot.callbackQuery("cancel_training", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await noHandler(ctx);
+}); //
+
+bot.callbackQuery(/^events_([a-f0-9]{24})$/, async (ctx) => {
+  await ctx.answerCallbackQuery();
+  const match = ctx.callbackQuery.data.match(/^events_([a-f0-9]{24})$/);
+
+  if (match && match[1]) {
+    groupsCommand(ctx, match[1]);
+  } else {
+    await ctx.reply("Не удалось извлечь ID тренировки.");
+  }
+});
+///////////////////////////////////////////////////
+
+// ОБЩИЕ: ////////////////////////////////////////
+
+bot.callbackQuery("startwork", async (ctx) => {
+  await ctx.answerCallbackQuery(); // Подтверждаем нажатие кнопки
+  await showMainMenu(ctx); // Показываем главное меню
+}); //
+
+bot.callbackQuery("register", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await registerCommand(ctx);
+}); //
+
+bot.callbackQuery("go_to_website", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await goToSite(ctx);
+});
+
+bot.callbackQuery("choose_group", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await handleGroupSelection(ctx);
+});
+//////////////////////////////////////////////////
+
+// bot.on("callback_query:data", async (ctx) => {
+//   ///callback_query:data - обработчик инлайн кнопок
+//   const data = ctx.callbackQuery.data;
+//   if (data === "register") {
+//     await registerCommand(ctx); !!!
+//   } else if (data === "startwork") {
+//     await showMainMenu(ctx); !!!
+//   } else if (ctx.session.stage === "nearest_training") {
+//     ctx.session.selectedGroupId = data; // Сохраняем выбранный ID
+//     await groupsCommand(ctx);
+//   } else if (ctx.session.stage === "waiting_for_message") {
+//     ctx.session.selectedGroupId = data; // Сохраняем выбранный ID группы
+//     await ctx.reply(`Введите текст сообщения для отправки.`);
+//   } else if (data === "accept_training") {
+//     await yesHandler(ctx); !!!
+//   } else if (data === "cancel_training") {
+//     await noHandler(ctx); !!!
+//   } else {
+//     await ctx.reply("Неизвестная команда или формат данных.");
+//   }
+// });
+
 bot.catch(handleBotError);
 
 // Инициализация бота и запуск сервера
@@ -96,7 +189,7 @@ bot.catch(handleBotError);
   await bot.init(); // Инициализация бота
 
   app.post("/webhook", (req, res) => {
-    console.log("Received update:", req.body);
+    // console.log("Received update:", req.body);
     bot.handleUpdate(req.body);
     res.sendStatus(200);
   });
@@ -105,80 +198,3 @@ bot.catch(handleBotError);
     console.log(`Server is running on port ${port}`);
   });
 })();
-
-const writeToOneGroup = async (ctx) => {
-  try {
-    const groups = await Group.find({});
-
-    if (groups.length === 0) {
-      return ctx.reply("🤔 Не найдено групп.");
-    }
-
-    const rows = groups.map((group) => [
-      {
-        text: `Написать ${group.title}`,
-        callback_data: group._id, /// JSON.stringify({ id: group._id, title: group.title }),
-      },
-    ]);
-    const groupKeyboard = new InlineKeyboard(rows);
-
-    await ctx.reply("📋 Выбери группу:", {
-      reply_markup: groupKeyboard,
-    });
-  } catch (error) {
-    console.error("Ошибка при загрузке групп:", error);
-    await ctx.reply("🚨 Извините, произошла ошибка при загрузке групп.");
-  }
-};
-
-const sendMessage = async (ctx) => {
-  if (ctx.session.stage === "waiting_for_message") {
-    const messageText = ctx.message.text;
-
-    if (!messageText) {
-      return ctx.reply("Пожалуйста, введите текст для рассылки.");
-    }
-
-    ctx.session.messageText = messageText; // Сохраняем текст в сессии
-    ctx.session.stage = ""; // Сбрасываем этап
-    let selectedGroupId = ctx.session.selectedGroupId; // Получаем выбранный ID группы
-    try { 
-      
-      let users;
-      if (selectedGroupId) {
-        const group = await Group.findById(selectedGroupId);
-        if (group) {
-          users = group.participants; // Получаем участников группы
-        } else {
-          return ctx.reply("Группа не найдена.");
-        }
-        //  ctx.session.selectedGroupId = undefined
-      } else {
-        users = await User.find({ telegramId: { $exists: true } });
-        //  ctx.session.selectedGroupId = undefined
-      }
-
-      for (let user of users) {
-        try {
-          await ctx.api.sendMessage(user.telegramId, messageText); // Рассылаем сообщение
-        } catch (err) {
-          console.error(
-            `Не удалось отправить сообщение пользователю с ID ${user.telegramId}:`,
-            err
-          );
-        }
-      }
-
-      // Сбрасываем ID группы после рассылки
-    } catch (err) {
-      console.error("Ошибка при рассылке сообщений:", err);
-      ctx.reply("Произошла ошибка при рассылке сообщений.");
-    } finally {
-      selectedGroupId
-        ? await ctx.reply(`Сообщение успешно отправлено пользователям группы`)
-        : await ctx.reply("Сообщение успешно отправлено всем пользователям.");
-
-      ctx.session.selectedGroupId = undefined;
-    }
-  }
-};
