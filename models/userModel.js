@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const { handleMongooseError } = require("../helpers/handleMongooseError");
 
 const phoneRegexp = /^(\+\d{1,2}\s?)?(\(\d{1,4}\))?[0-9.\-\s]{6,}$/;
