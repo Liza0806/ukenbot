@@ -10,7 +10,10 @@ async function handleTextMessages(ctx) {
 
     await ctx.reply("Введите ваш пароль 🛡️:");
   } else if (ctx.session.registrationStep === 2) {
+    console.log(ctx, '222222222222222222222')
     ctx.session.registrationPassword = ctx.message.text;
+
+    console.log(ctx.message.text, 'ctx.message.text')
     ctx.session.registrationStep = 3;
 
     await ctx.reply('Подтвердите регистрацию, набрав "uken" 🔑');
@@ -36,6 +39,9 @@ async function handleTextMessages(ctx) {
     await ctx.reply("Регистрация успешна! Добро пожаловать в UKEN TEAM 🎉", {
       reply_markup: startKeyboard,
     });
+    ctx.session.registrationPassword===undefined;
+    ctx.session.stage = undefined;
+    ctx.session.registrationStep = undefined;
   }
 }
 

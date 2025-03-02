@@ -5,13 +5,13 @@ const { Group } = require("../models/groupModel");
 
 async function groupsCommand(ctx, groupId) {
   try {
-    const now = moment().toISOString(); // Используем .toISOString() для получения строки в формате ISO
+    const now = moment().toISOString(); // .toISOString() !!!!
 
     // Запрос в MongoDB для поиска ближайшего будущего события по groupId
     const upcomingEvent = await Event.find({
-      groupId: groupId, // Фильтруем по groupId
-      isCancelled: false, // Событие не отменено
-      date: { $gt: now }, // Дата события позже текущей
+      groupId: groupId, 
+      isCancelled: false, 
+      date: { $gt: now }, // Дата позже текущей
     })
       .sort({ date: 1 })
       .limit(1)

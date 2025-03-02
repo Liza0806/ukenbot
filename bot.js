@@ -38,7 +38,7 @@ bot.use(
 const adminId = 1007855799;
 
 // Команды и обработчики
-bot.command("register", registerCommand);
+bot.callbackQuery("registration", (ctx) => registerCommand(ctx)); 
 bot.command("start", (ctx) => showMainMenu(ctx)); ///// допиши команды
 
 // ТОЛЬКО АДМИНУ: //////////////////////////////////////
@@ -68,6 +68,17 @@ bot.on("message:text", async (ctx) => {
       console.error("Ошибка при отправке сообщения пользователям", error);
       ctx.reply(
         "Произошла ошибка при отправке сообщения пользователям. Попробуйте снова позже."
+      );
+    }
+  }
+  if (ctx.session.stage === "registration") {
+    try {
+      console.log('11111111111111111111111111111111111')
+      await handleTextMessages(ctx);    
+    } catch (error) {
+      console.error("Ошибка при регистрации", error);
+      ctx.reply(
+        "Произошла ошибка при регистрации. Попробуйте снова позже."
       );
     }
   }
@@ -140,8 +151,12 @@ bot.callbackQuery(/^events_([a-f0-9]{24})$/, async (ctx) => {
 // ОБЩИЕ: ////////////////////////////////////////
 
 bot.callbackQuery("startwork", async (ctx) => {
-  await ctx.answerCallbackQuery(); // Подтверждаем нажатие кнопки
+  console.log(ctx, 'ctx callbackQuery 154')
+  console.log('3333333333333333333')
+ // Подтверждаем нажатие кнопки
+  console.log('44444444444444444444444')
   await showMainMenu(ctx); // Показываем главное меню
+  await ctx.answerCallbackQuery();
 }); //
 
 bot.callbackQuery("register", async (ctx) => {
@@ -187,7 +202,7 @@ bot.catch(handleBotError);
 // Инициализация бота и запуск сервера
 (async () => {
   await bot.init(); // Инициализация бота
-
+  await bot.api.setMyCommands([]);
   app.post("/webhook", (req, res) => {
     // console.log("Received update:", req.body);
     bot.handleUpdate(req.body);

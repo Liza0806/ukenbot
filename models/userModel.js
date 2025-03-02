@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const { handleMongooseError } = require("../helpers/handleMongooseError");
 
 const phoneRegexp = /^(\+\d{1,2}\s?)?(\(\d{1,4}\))?[0-9.\-\s]{6,}$/;
@@ -26,14 +26,27 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
-    discount: {
-      type: Number,
-      default: 0,
-    },
     visits: [visitSchema],
     telegramId: {
       type: Number,
       required: true,
+    },
+    discount: {
+      type: Number,
+      required: false,
+    },
+    isActive: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    createdAt: {
+      type: Date,
+      required: false,
+    },
+    updatedAt: {
+      type: Date,
+      required: false,
     },
   },
   { versionKey: false, timestamps: true }
@@ -54,7 +67,8 @@ const registerSchema = Joi.object({
   balance: Joi.number().default(0),
   isAdmin: Joi.boolean().default(false),
   visits: Joi.array().default([]),
-  discount: Joi.number().default(0)
+  isActive: Joi.boolean().default(true),
+  createdAt: Joi.date().optional(),
 });
 const updateSchema = Joi.object({
   _id: Joi.string(),
@@ -63,10 +77,13 @@ const updateSchema = Joi.object({
   groups: Joi.array(),
   telegramId: Joi.number(),
   isAdmin: Joi.boolean(),
-  discount: Joi.number(),
   balance: Joi.number(),
   visits: Joi.array(),
-  password: Joi.string().min(6), 
+  password: Joi.string().min(6),
+  discount: Joi.number(),
+  isActive: Joi.boolean().default(true),
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().optional(),
 });
 
 const loginSchema = Joi.object({
@@ -86,4 +103,3 @@ module.exports = {
   User,
   schemas,
 };
-

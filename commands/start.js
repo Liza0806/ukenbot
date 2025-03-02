@@ -27,7 +27,10 @@ async function registerCommand(ctx) {
       }
     } else {
       // Если пользователь не найден, начинаем регистрацию
+      ctx.session.stage = "registration"
       ctx.session.registrationStep = 1;
+      console.log(ctx)
+      console.log(ctx.session)
       await ctx.reply("Введи свое имя:");
     }
   } catch (error) {

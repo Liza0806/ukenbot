@@ -1,3 +1,5 @@
+const { Group } = require("../models/groupModel");
+
 const writeToOneGroup = async (ctx) => {
     try {
       await ctx.answerCallbackQuery();
